@@ -1,0 +1,309 @@
+#root {
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: left;
+}
+
+.logo {
+  height: 6em;
+  padding: 1.5em;
+  will-change: filter;
+  transition: filter 300ms;
+}
+.logo:hover {
+  filter: drop-shadow(0 0 2em #646cffaa);
+}
+.logo.react:hover {
+  filter: drop-shadow(0 0 2em #61dafbaa);
+}
+
+@keyframes logo-spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  a:nth-of-type(2) .logo {
+    animation: logo-spin infinite 20s linear;
+  }
+}
+
+.card {
+  padding: 2em;
+}
+
+.read-the-docs {
+  color: #888;
+}
+
+/* ---------- Dark theme table styles ---------- */
+.table-container {
+  margin-top: 12px;
+  padding: 16px;
+  background: #1c1c1c;
+  border-radius: 14px;
+  border: 1px solid #2e2e2e;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+}
+
+.apps-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+  font-size: 14px;
+
+  background: #1f1f1f; /* dark table surface */
+  color: rgba(255, 255, 255, 0.9);
+  border: 1px solid #333;
+  border-radius: 10px;
+  overflow: hidden; /* makes border-radius work on table */
+}
+
+.apps-table thead th {
+  text-align: left;
+  font-weight: 600;
+  padding: 10px 12px;
+
+  background: #2a2f3a;
+  color: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid #333;
+}
+
+.apps-table tbody td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #2f2f2f; /* subtle separators */
+  vertical-align: middle;
+}
+
+/* No zebra striping by default (cleaner in dark mode) */
+/* If you want a VERY subtle stripe later, we can add it */
+
+.apps-table tbody tr:hover {
+  background: #2b3242;
+  transition: background 0.15s ease;
+}
+
+.apps-actions {
+  white-space: nowrap;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+/* Buttons that match dark theme */
+.btn {
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 8px;
+  border: 1px solid #3a3a3a;
+  background: #2a2a2a;
+  color: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+}
+
+.btn:hover {
+  background: #333;
+}
+
+.btn-danger {
+  border-color: #5a2a2a;
+  background: #3a1f1f;
+}
+
+.btn-danger:hover {
+  background: #4a2323;
+}
+
+/* Links inside the table */
+.apps-table a {
+  color: #7ab7ff;
+  text-decoration: none;
+}
+
+.apps-table a:hover {
+  text-decoration: underline;
+}
+
+.badge {
+  padding: 4px 10px;
+  font-size: 12px;
+  border-radius: 999px;
+  font-weight: 500;
+  display: inline-block;
+}
+
+/* Individual statuses */
+
+.badge-saved {
+  background: #3a3a3a;
+  color: #ccc;
+}
+
+.badge-applied {
+  background: #2a3f5f;
+  color: #7ab7ff;
+}
+
+.badge-interview {
+  background: #3b2f57;
+  color: #b38cff;
+}
+
+.badge-offer {
+  background: #2d4a36;
+  color: #7dffb3;
+}
+
+.badge-rejected {
+  background: #4a2d2d;
+  color: #ff9a9a;
+}
+.summary {
+  margin: 8px 0 12px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.summary-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  /* same “pill” sizing as summary-item, but we’ll let badge-* supply colors */
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.summary-pill strong {
+  font-weight: 700;
+}
+
+/* .summary-item {
+  background: #1f1f1f;
+  border: 1px solid #2e2e2e;
+  color: rgba(255, 255, 255, 0.88);
+  padding: 6px 10px;
+  border-radius: 999px;
+  font-size: 13px;
+}
+
+.summary-item strong {
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 600;
+} */
+
+/* ---------- Toast notifications ---------- */
+
+.toast {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 9999;
+
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  min-width: 260px;
+  max-width: 360px;
+  padding: 12px 14px;
+
+  border-radius: 12px;
+  border: 1px solid #2e2e2e;
+  background: #1c1c1c;
+  color: rgba(255, 255, 255, 0.92);
+
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+
+  opacity: 0;
+  transform: translateY(-8px);
+  pointer-events: none;
+  transition:
+    opacity 160ms ease,
+    transform 160ms ease;
+}
+
+.toast.show {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+.toast-message {
+  flex: 1;
+  font-size: 13px;
+  line-height: 1.25;
+}
+
+.toast-close {
+  border: none;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  font-size: 18px;
+  line-height: 1;
+  padding: 0 4px;
+}
+
+.toast-close:hover {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.toast.success {
+  border-color: rgba(125, 255, 179, 0.25);
+}
+
+.toast.error {
+  border-color: rgba(255, 154, 154, 0.3);
+}
+
+.toast.info {
+  border-color: rgba(122, 183, 255, 0.25);
+}
+/* ---------- Modal (confirm delete) ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: grid;
+  place-items: center;
+  z-index: 9998;
+  padding: 16px;
+}
+
+.modal {
+  width: min(460px, 100%);
+  background: #1c1c1c;
+  border: 1px solid #2e2e2e;
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.modal-title {
+  margin: 0 0 8px;
+  font-size: 16px;
+}
+
+.modal-text {
+  margin: 0 0 14px;
+  font-size: 13px;
+  opacity: 0.85;
+  line-height: 1.35;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
