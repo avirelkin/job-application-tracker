@@ -5,6 +5,8 @@ const express = require('express');
 const cors = require('cors');
 const pool = require('./db');
 const session = require('express-session');
+const MySQLStore = require('express-mysql-session')(session);
+
 const bcrypt = require('bcrypt');
 
 const app = express();
@@ -12,52 +14,39 @@ const app = express();
 // allow JSON bodies (POST/PUT)
 app.use(express.json());
 
-// allow requests from your React dev server (Vite default port is 5173)
+app.use(
+  cors({
+    origin: true, //process.env.FRONTEND_URL,
+    credentials: true,
+  }),
+);
+
+/* // allow requests from your React dev server (Vite default port is 5173)
 app.use(
   cors({
     origin: ['http://localhost:5173'],
     credentials: true,
   }),
-);
-
-/* // ✅ session cookie
-app.use(
-  session({
-    secret: process.env.SESSION_SECRET || 'dev_secret_change_me',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      httpOnly: true,
-      sameSite: 'lax',
-      secure: false, // set true only on HTTPS production
-    },
-  }),
 ); */
 
-app.set('trust proxy', 1); // IMPORTANT when deployed behind a proxy (Render/Fly/etc)
+app.set('trust proxy', 1);
+
+const sessionStore = new MySQLStore({}, pool);
 
 app.use(
   session({
     name: 'sid',
-    secret: process.env.SESSION_SECRET,
+    secret: process.env.SESSION_SECRET || 'dev_secret_change_me',
     resave: false,
     saveUninitialized: false,
     store: sessionStore,
     cookie: {
       httpOnly: true,
       sameSite: 'lax',
-      secure: process.env.NODE_ENV === 'production', // true on HTTPS
-      maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+      secure: process.env.NODE_ENV === 'production',
+      maxAge: 1000 * 60 * 60 * 24 * 7,
     },
   }),
-);
-
-const sessionStore = new MySQLStore(
-  {
-    // optional table settings; defaults are fine
-    // createDatabaseTable: true, // it will auto-create if it can
-  },
-  pool.promise ? pool.promise() : pool, // depending on mysql2 pool style
 );
 
 // quick health check route
@@ -177,73 +166,6 @@ app.post('/api/auth/logout', (req, res) => {
   });
 });
 
-/* app.get('/api/applications', async (req, res, next) => {
-  try {
-    // normalize inputs
-    const rawStatus = req.query.status; // string OR array OR undefined
-    const q = typeof req.query.q === 'string' ? req.query.q.trim() : '';
-    const sort = typeof req.query.sort === 'string' ? req.query.sort.trim() : '';
-    
-
-    // normalize status into an array of non-empty strings
-    const statuses = Array.isArray(rawStatus)
-      ? rawStatus.map((s) => String(s).trim()).filter(Boolean)
-      : typeof rawStatus === 'string'
-        ? [rawStatus.trim()].filter(Boolean)
-        : [];
-
-    let sql = 'SELECT * FROM applications';
-    const params = [];
-    const where = [];
-
-    // status filter (single or multiple)
-    if (statuses.length === 1) {
-      where.push('status = ?');
-      params.push(statuses[0]);
-    } else if (statuses.length > 1) {
-      where.push(`status IN (${statuses.map(() => '?').join(',')})`);
-      params.push(...statuses);
-    }
-
-    // search filter
-    if (q) {
-      where.push('(company LIKE ? OR title LIKE ?)');
-      params.push(`%${q}%`, `%${q}%`);
-    }
-
-    if (where.length) {
-      sql += ' WHERE ' + where.join(' AND ');
-    }
-
-    // sort direction (whitelist)
-    const order = sort === 'asc' ? 'ASC' : 'DESC';
-
-    // whitelist allowed sort columns
-    const allowedSortFields = [
-      'applied_date',
-      'created_at',
-      'company',
-      'status',
-    ];
-
-    const sortBy = allowedSortFields.includes(req.query.sortBy)
-      ? req.query.sortBy
-      : 'applied_date';
-
-    // special handling for applied_date (NULL handling)
-    if (sortBy === 'applied_date') {
-      sql += ` ORDER BY (applied_date IS NULL) ASC, applied_date ${order}, id ${order}`;
-    } else {
-      sql += ` ORDER BY ${sortBy} ${order}, id ${order}`;
-    }
-
-    const [rows] = await pool.execute(sql, params);
-    res.json(rows);
-  } catch (err) {
-    next(err);
-  }
-}); */
-
 app.get('/api/applications', requireAuth, async (req, res, next) => {
   try {
     const userId = req.session.userId;
@@ -313,43 +235,6 @@ app.get('/api/applications', requireAuth, async (req, res, next) => {
   }
 });
 
-/* // POST create an application
-app.post('/api/applications', async (req, res, next) => {
-  try {
-    const { company, title, url, status, applied_date, notes } = req.body;
-
-    // minimal validation
-    if (!company || !title || !status) {
-      return res
-        .status(400)
-        .json({ ok: false, error: 'company, title, and status are required' });
-    }
-
-    const [result] = await pool.execute(
-      `INSERT INTO applications (company, title, url, status, applied_date, notes)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-      [
-        company,
-        title,
-        url || null,
-        status,
-        applied_date || null,
-        notes || null,
-      ],
-    );
-
-    // return the newly created row
-    const [rows] = await pool.execute(
-      'SELECT * FROM applications WHERE id = ?',
-      [result.insertId],
-    );
-
-    res.status(201).json(rows[0]);
-  } catch (err) {
-    next(err);
-  }
-}); */
-
 app.post('/api/applications', requireAuth, async (req, res, next) => {
   try {
     const userId = req.session.userId;
@@ -387,26 +272,6 @@ app.post('/api/applications', requireAuth, async (req, res, next) => {
   }
 });
 
-/* // DELETE an application
-app.delete('/api/applications/:id', async (req, res, next) => {
-  try {
-    const { id } = req.params;
-
-    const [result] = await pool.execute(
-      'DELETE FROM applications WHERE id = ?',
-      [id],
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ ok: false, error: 'Not found' });
-    }
-
-    res.json({ ok: true });
-  } catch (err) {
-    next(err);
-  }
-}); */
-
 app.delete('/api/applications/:id', requireAuth, async (req, res, next) => {
   try {
     const userId = req.session.userId;
@@ -426,48 +291,6 @@ app.delete('/api/applications/:id', requireAuth, async (req, res, next) => {
     next(err);
   }
 });
-
-/* // PUT update an application
-app.put('/api/applications/:id', async (req, res, next) => {
-  try {
-    const { id } = req.params;
-    const { company, title, url, status, applied_date, notes } = req.body;
-
-    // minimal validation
-    if (!company || !title || !status) {
-      return res
-        .status(400)
-        .json({ ok: false, error: 'company, title, and status are required' });
-    }
-
-    const [result] = await pool.execute(
-      `UPDATE applications
-       SET company = ?, title = ?, url = ?, status = ?, applied_date = ?, notes = ?
-       WHERE id = ?`,
-      [
-        company,
-        title,
-        url || null,
-        status,
-        applied_date || null,
-        notes || null,
-        id,
-      ],
-    );
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({ ok: false, error: 'Not found' });
-    }
-
-    const [rows] = await pool.execute(
-      'SELECT * FROM applications WHERE id = ?',
-      [id],
-    );
-    res.json(rows[0]);
-  } catch (err) {
-    next(err);
-  }
-}); */
 
 app.put('/api/applications/:id', requireAuth, async (req, res, next) => {
   try {
@@ -518,6 +341,16 @@ app.use((err, req, res, next) => {
   console.error(err);
   res.status(500).json({ ok: false, error: err.message });
 });
+
+const path = require('path');
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, '../client/dist')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+  });
+}
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {

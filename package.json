@@ -1,6 +1,16 @@
 {
-  "dependencies": {
-    "bcrypt": "^6.0.0",
-    "express-session": "^1.19.0"
+  "name": "job-application-tracker",
+  "private": true,
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "install:all": "npm install --prefix server && npm install --prefix client",
+    "build": "npm run install:all && npm run build --prefix client",
+    "start": "npm start --prefix server",
+    "dev": "concurrently \"npm run dev --prefix server\" \"npm run dev --prefix client\""
+  },
+  "devDependencies": {
+    "concurrently": "^9.0.0"
   }
 }

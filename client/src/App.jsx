@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 
-const API_BASE = 'http://localhost:3000';
+const API_BASE = import.meta.env.PROD ? '' : 'http://localhost:3000';
 
 const initialForm = {
   company: '',
@@ -20,6 +20,8 @@ function toDateInputValue(applied_date) {
 
 export default function App() {
   const [applications, setApplications] = useState([]);
+  //const [allApplications, setAllApplications] = useState([]); // ✅ add this
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
@@ -44,6 +46,8 @@ export default function App() {
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
+  const isFiltered = Boolean(filterStatus) || Boolean(search.trim());
+  // const sourceForCounts = isFiltered ? applications : allApplications;
 
   function showToast(type, message) {
     setToast({ type, message });
@@ -71,30 +75,30 @@ export default function App() {
     return u.toString();
   }, [filterStatus, search, sort, sortBy]);
 
-  /*   const statusCounts = useMemo(() => {
+  const statusCounts = useMemo(() => {
     const counts = {
       Saved: 0,
       Applied: 0,
       Interview: 0,
       Offer: 0,
       Rejected: 0,
+      Total: 0,
     };
 
     for (const app of applications) {
-      if (counts[app.status] !== undefined) {
-        counts[app.status] += 1;
-      }
+      counts.Total += 1;
+      if (counts[app.status] !== undefined) counts[app.status] += 1;
     }
 
     return counts;
-  }, [applications]); */
+  }, [applications]);
 
   async function loadApplications({ silent = false } = {}) {
     setLoading(true);
     setError('');
+
     try {
       const res = await fetch(listUrl, { credentials: 'include' });
-
       if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
       const data = await res.json();
       setApplications(data);
@@ -106,6 +110,7 @@ export default function App() {
       setLoading(false);
     }
   }
+
   function cancelDelete() {
     setDeleteTarget(null);
   }
@@ -117,11 +122,6 @@ export default function App() {
     return () => window.removeEventListener('keydown', onKeyDown);
   }, [deleteTarget]);
 
-  /*   useEffect(() => {
-    loadApplications({ silent: true });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listUrl]); */
-
   useEffect(() => {
     if (!authLoading && user) {
       loadApplications({ silent: true });
@@ -129,7 +129,7 @@ export default function App() {
       setApplications([]);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [listUrl, authLoading, user]);
+  }, [listUrl, authLoading, user, isFiltered]);
 
   useEffect(() => {
     (async () => {
@@ -275,7 +275,7 @@ export default function App() {
     setDeleteTarget({ id: app.id, company: app.company, title: app.title });
   }
 
-  /*   async function confirmDelete() {
+  async function confirmDelete() {
     if (!deleteTarget) return;
 
     try {
@@ -301,12 +301,12 @@ export default function App() {
       showToast('error', err.message || 'Delete failed');
     }
   }
-
+  /*
   function clearFilters() {
     setFilterStatus('');
     setSearch('');
-  } */
-
+  } 
+*/
   return (
     <div
       style={{
@@ -387,7 +387,6 @@ export default function App() {
               Logout
             </button>
           </div>
-
           {/* Add/Edit Form */}
           <form onSubmit={saveApplication} style={{ marginBottom: 18 }}>
             <h2 style={{ fontSize: 18 }}>
@@ -476,8 +475,15 @@ export default function App() {
             </div>
           </form>
 
-          {/* Filters */}
-          <div style={{ marginBottom: 15 }}>
+          <div
+            style={{
+              marginBottom: 15,
+              display: 'flex',
+              alignItems: 'center',
+              gap: 10,
+              flexWrap: 'wrap',
+            }}
+          >
             <select
               value={filterStatus}
               onChange={(e) => setFilterStatus(e.target.value)}
@@ -504,13 +510,72 @@ export default function App() {
               Refresh
             </button>
 
-            {loading && <span style={{ marginLeft: 8 }}>Loading…</span>}
+            {loading && <span>Loading…</span>}
           </div>
-
           {error && <p style={{ color: 'red' }}>{error}</p>}
-
           {!loading && applications.length === 0 && (
             <p>No applications found.</p>
+          )}
+          {!loading && applications.length > 0 && (
+            <div className="summary">
+              {[
+                { key: 'Saved', icon: '💾', cls: 'badge-saved' },
+                { key: 'Applied', icon: '📨', cls: 'badge-applied' },
+                { key: 'Interview', icon: '📅', cls: 'badge-interview' },
+                { key: 'Offer', icon: '🎉', cls: 'badge-offer' },
+                { key: 'Rejected', icon: '⛔', cls: 'badge-rejected' },
+              ].map(({ key, icon, cls }) => (
+                <button
+                  key={key}
+                  type="button"
+                  className={`summary-pill badge ${cls} ${
+                    filterStatus === key ? 'active-pill' : ''
+                  }`}
+                  onClick={() =>
+                    setFilterStatus((cur) => (cur === key ? '' : key))
+                  }
+                  title="Click to filter"
+                >
+                  <span>{icon}</span>
+                  <span>{key}</span>
+                  <strong>{statusCounts[key]}</strong>
+                </button>
+              ))}
+
+              <div className="summary-pill">
+                Total: <strong>{statusCounts.Total}</strong>
+              </div>
+            </div>
+          )}
+
+          {deleteTarget && (
+            <div
+              className="modal-overlay"
+              onClick={cancelDelete}
+              role="dialog"
+              aria-modal="true"
+            >
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <h3 className="modal-title">Delete application?</h3>
+
+                <p className="modal-text">
+                  <strong>{deleteTarget.company}</strong> — {deleteTarget.title}
+                </p>
+
+                <div className="modal-actions">
+                  <button className="btn" type="button" onClick={cancelDelete}>
+                    Cancel
+                  </button>
+                  <button
+                    className="btn btn-danger"
+                    type="button"
+                    onClick={confirmDelete}
+                  >
+                    Delete
+                  </button>
+                </div>
+              </div>
+            </div>
           )}
 
           {!loading && applications.length > 0 && (
