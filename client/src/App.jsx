@@ -2,7 +2,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 
-const API_BASE = import.meta.env.PROD ? '' : 'http://localhost:3000';
+const API_BASE = import.meta.env.PROD
+  ? window.location.origin
+  : 'http://localhost:3000';
 
 const initialForm = {
   company: '',
