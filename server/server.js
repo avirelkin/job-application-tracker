@@ -352,7 +352,12 @@ if (process.env.NODE_ENV === 'production') {
   });
 }
 
-const PORT = process.env.PORT || 3000;
+/* const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
   console.log(`✅ Server listening on http://localhost:${PORT}`);
+}); */
+const PORT = Number(process.env.PORT || 3000);
+
+app.listen(PORT, '0.0.0.0', () => {
+  console.log(`✅ Server listening on port ${PORT}`);
 });
