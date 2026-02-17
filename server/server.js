@@ -11,6 +11,8 @@ const bcrypt = require('bcrypt');
 
 const app = express();
 
+app.get('/health', (req, res) => res.status(200).send('ok'));
+
 // allow JSON bodies (POST/PUT)
 app.use(express.json());
 
@@ -49,10 +51,10 @@ app.use(
   }),
 );
 
-// quick health check route
+/* // quick health check route
 app.get('/api/health', (req, res) => {
   res.json({ ok: true, message: 'API is running' });
-});
+}); */
 
 // ✅ DB health check
 app.get('/api/db-health', async (req, res, next) => {
