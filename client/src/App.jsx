@@ -418,7 +418,7 @@ export default function App() {
                 Stay in control.
               </h2>
               <p>
-                Notes, statuses, and timelines—so you always know what’s next.
+                Notes, statuses, and timelines—so you always know whats next.
               </p>
 
               <ul className="auth-bullets">
