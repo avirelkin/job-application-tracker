@@ -5,6 +5,7 @@ import Modal from './components/modal';
 import ApplicationsTable from './components/ApplicationsTable';
 import DeleteConfirmModal from './components/DeleteConfirmModal';
 import Toast from './components/Toast';
+import UserHeader from './components/UserHeader';
 
 const API_BASE = import.meta.env.PROD
   ? window.location.origin
@@ -348,16 +349,6 @@ export default function App() {
   } 
 */
   return (
-    /* <div
-      style={{
-        padding: 20,
-        fontFamily: 'Arial',
-        maxWidth: 900,
-        margin: '0 auto',
-      }}
-    >
-      <h1>Job Application Tracking System</h1> */
-
     <div className="page">
       <div className="container">
         <h1 className="app-title">Application Tracker</h1>
@@ -371,45 +362,6 @@ export default function App() {
         {authLoading ? (
           <p>Checking session…</p>
         ) : !user ? (
-          /* ================= AUTH SCREEN ================= */
-          /*<div className="auth-card">
-          <h2 style={{ marginTop: 0 }}>
-            {authMode === 'register' ? 'Create account' : 'Log in'}
-          </h2>
-
-          <form onSubmit={submitAuth} style={{ display: 'grid', gap: 10 }}>
-            <input
-              placeholder="Email"
-              value={authEmail}
-              onChange={(e) => setAuthEmail(e.target.value)}
-              autoComplete="email"
-            />
-            <input
-              placeholder="Password"
-              type="password"
-              value={authPassword}
-              onChange={(e) => setAuthPassword(e.target.value)}
-              autoComplete={
-                authMode === 'register' ? 'new-password' : 'current-password'
-              }
-            />
-
-            <button className="btn" type="submit">
-              {authMode === 'register' ? 'Register' : 'Login'}
-            </button>
-
-            <button
-              className="btn"
-              type="button"
-              onClick={() =>
-                setAuthMode((m) => (m === 'login' ? 'register' : 'login'))
-              }
-            >
-              Switch to {authMode === 'login' ? 'Register' : 'Login'}
-            </button>
-          </form>
-        </div>*/
-
           /* ================= AUTH SCREEN ================= */
           <div className="auth-layout">
             <div className="auth-hero">
@@ -491,21 +443,7 @@ export default function App() {
           /* ================= MAIN APP ================= */
           <>
             {/* Logged-in header */}
-            <div
-              style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: 10,
-              }}
-            >
-              <div style={{ fontSize: 13, opacity: 0.8 }}>
-                Logged in as <strong>{user.email}</strong>
-              </div>
-              <button className="btn" type="button" onClick={logout}>
-                Logout
-              </button>
-            </div>
+            <UserHeader user={user} logout={logout} />
             {/* Add/Edit Form */}
             <form onSubmit={saveApplication} style={{ marginBottom: 18 }}>
               <h2 style={{ fontSize: 18 }}>
