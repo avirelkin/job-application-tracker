@@ -4,6 +4,7 @@ import './App.css';
 import Modal from './components/modal';
 import ApplicationsTable from './components/ApplicationsTable';
 import DeleteConfirmModal from './components/DeleteConfirmModal';
+import Toast from './components/Toast';
 
 const API_BASE = import.meta.env.PROD
   ? window.location.origin
@@ -361,14 +362,11 @@ export default function App() {
       <div className="container">
         <h1 className="app-title">Application Tracker</h1>
 
-        {toast && (
-          <div className={`toast ${toast.type} ${toastVisible ? 'show' : ''}`}>
-            <span className="toast-message">{toast.message}</span>
-            <button className="toast-close" type="button" onClick={closeToast}>
-              ×
-            </button>
-          </div>
-        )}
+        <Toast
+          toast={toast}
+          toastVisible={toastVisible}
+          closeToast={closeToast}
+        />
 
         {authLoading ? (
           <p>Checking session…</p>
