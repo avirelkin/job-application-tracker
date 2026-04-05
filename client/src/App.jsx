@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 import Modal from './components/modal';
 import ApplicationsTable from './components/ApplicationsTable';
+import DeleteConfirmModal from './components/DeleteConfirmModal';
 
 const API_BASE = import.meta.env.PROD
   ? window.location.origin
@@ -709,40 +710,11 @@ export default function App() {
               </div>
             )}
 
-            {deleteTarget && (
-              <div
-                className="modal-overlay"
-                onClick={cancelDelete}
-                role="dialog"
-                aria-modal="true"
-              >
-                <div className="modal" onClick={(e) => e.stopPropagation()}>
-                  <h3 className="modal-title">Delete application?</h3>
-
-                  <p className="modal-text">
-                    <strong>{deleteTarget.company}</strong> —{' '}
-                    {deleteTarget.title}
-                  </p>
-
-                  <div className="modal-actions">
-                    <button
-                      className="btn"
-                      type="button"
-                      onClick={cancelDelete}
-                    >
-                      Cancel
-                    </button>
-                    <button
-                      className="btn btn-danger"
-                      type="button"
-                      onClick={confirmDelete}
-                    >
-                      Delete
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
+            <DeleteConfirmModal
+              deleteTarget={deleteTarget}
+              cancelDelete={cancelDelete}
+              confirmDelete={confirmDelete}
+            />
 
             {!loading && sortedApplications.length === 0 && (
               <p>No applications found.</p>
