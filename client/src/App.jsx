@@ -2,6 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import './App.css';
 import Modal from './components/modal';
+import ApplicationsTable from './components/ApplicationsTable';
 
 const API_BASE = import.meta.env.PROD
   ? window.location.origin
@@ -661,9 +662,7 @@ export default function App() {
               {loading && <span>Loading…</span>}
             </div>
             {error && <p style={{ color: 'red' }}>{error}</p>}
-            {!loading && applications.length === 0 && (
-              <p>No applications found.</p>
-            )}
+
             {!loading && applications.length > 0 && (
               <div className="summary">
                 {[
@@ -745,63 +744,19 @@ export default function App() {
               </div>
             )}
 
-            {!loading && applications.length > 0 && (
-              <div className="table-container">
-                <table className="apps-table">
-                  <thead>
-                    <tr>
-                      <th>Company</th>
-                      <th>Title</th>
-                      <th>Status</th>
-                      <th>Applied</th>
-                      <th>Created</th>
-                      <th>Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {sortedApplications.map((app) => (
-                      <tr key={app.id}>
-                        <td>{app.company}</td>
-                        <td>{app.title}</td>
-                        <td>
-                          <span
-                            className={`badge badge-${app.status.toLowerCase()}`}
-                          >
-                            {app.status}
-                          </span>
-                        </td>
-                        <td>{app.applied_date?.slice(0, 10)}</td>
-                        <td>{app.created_at?.slice(0, 10)}</td>
-
-                        <td className="apps-actions">
-                          <button
-                            className="btn"
-                            type="button"
-                            onClick={() => openDetails(app)}
-                          >
-                            View
-                          </button>
-                          <button
-                            className="btn"
-                            type="button"
-                            onClick={() => startEdit(app)}
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className="btn btn-danger"
-                            type="button"
-                            onClick={() => requestDelete(app)}
-                          >
-                            Delete
-                          </button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+            {!loading && sortedApplications.length === 0 && (
+              <p>No applications found.</p>
             )}
+
+            {!loading && sortedApplications.length > 0 && (
+              <ApplicationsTable
+                applications={sortedApplications}
+                onView={openDetails}
+                onEdit={startEdit}
+                onDelete={requestDelete}
+              />
+            )}
+
             <Modal app={selectedApp} onClose={closeDetails} />
           </>
         )}
