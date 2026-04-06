@@ -7,6 +7,7 @@ import DeleteConfirmModal from './components/DeleteConfirmModal';
 import Toast from './components/Toast';
 import UserHeader from './components/UserHeader';
 import ApplicationForm from './components/ApplicationForm';
+import ApplicationFilters from './components/ApplicationFilters';
 
 const API_BASE = import.meta.env.PROD
   ? window.location.origin
@@ -455,63 +456,19 @@ export default function App() {
               cancelEdit={cancelEdit}
             />
 
-            <div
-              style={{
-                marginBottom: 15,
-                display: 'flex',
-                alignItems: 'center',
-                gap: 10,
-                flexWrap: 'wrap',
-              }}
-            >
-              <select
-                value={filterStatus}
-                onChange={(e) => setFilterStatus(e.target.value)}
-              >
-                <option value="">All Statuses</option>
-                <option value="Saved">Saved</option>
-                <option value="Applied">Applied</option>
-                <option value="Interview">Interview</option>
-                <option value="Offer">Offer</option>
-                <option value="Rejected">Rejected</option>
-              </select>
+            <ApplicationFilters
+              filterStatus={filterStatus}
+              setFilterStatus={setFilterStatus}
+              search={search}
+              setSearch={setSearch}
+              sortBy={sortBy}
+              setSortBy={setSortBy}
+              sort={sort}
+              setSort={setSort}
+              loadApplications={loadApplications}
+              loading={loading}
+            />
 
-              <input
-                placeholder="Search by company or title..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                style={{
-                  flex: 1,
-                  minWidth: 240,
-                  padding: '8px 12px',
-                  margin: '0 6px',
-                }}
-              />
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-              >
-                <option value="applied_date">Sort by Applied Date</option>
-                <option value="created_at">Sort by Created Date</option>
-              </select>
-
-              <button
-                type="button"
-                onClick={() => setSort((s) => (s === 'asc' ? 'desc' : 'asc'))}
-              >
-                {sort === 'asc' ? 'Oldest → Newest' : 'Newest → Oldest'}
-              </button>
-
-              <button
-                type="button"
-                onClick={() => loadApplications()}
-                disabled={loading}
-              >
-                Refresh
-              </button>
-
-              {loading && <span>Loading…</span>}
-            </div>
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             {!loading && applications.length > 0 && (
