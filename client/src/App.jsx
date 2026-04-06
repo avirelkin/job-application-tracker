@@ -8,6 +8,7 @@ import Toast from './components/Toast';
 import UserHeader from './components/UserHeader';
 import ApplicationForm from './components/ApplicationForm';
 import ApplicationFilters from './components/ApplicationFilters';
+import ApplicationSummary from './components/ApplicationSummary';
 
 const API_BASE = import.meta.env.PROD
   ? window.location.origin
@@ -472,49 +473,11 @@ export default function App() {
             {error && <p style={{ color: 'red' }}>{error}</p>}
 
             {!loading && applications.length > 0 && (
-              <div className="summary">
-                {[
-                  { key: 'Saved', icon: '💾', cls: 'badge-saved' },
-                  { key: 'Applied', icon: '📨', cls: 'badge-applied' },
-                  { key: 'Interview', icon: '📅', cls: 'badge-interview' },
-                  { key: 'Offer', icon: '🎉', cls: 'badge-offer' },
-                  { key: 'Rejected', icon: '⛔', cls: 'badge-rejected' },
-                ].map(({ key, icon, cls }) => {
-                  const idx = statusSort.indexOf(key);
-                  const active = idx !== -1;
-
-                  return (
-                    <button
-                      key={key}
-                      type="button"
-                      className={`summary-pill badge ${cls} ${
-                        active ? 'active-pill' : ''
-                      }`}
-                      onClick={() =>
-                        setStatusSort((cur) =>
-                          cur.includes(key)
-                            ? cur.filter((s) => s !== key)
-                            : [...cur, key],
-                        )
-                      }
-                      title={
-                        active
-                          ? `Sort priority #${idx + 1} (click to remove)`
-                          : 'Click to add sort priority'
-                      }
-                    >
-                      <span>{icon}</span>
-                      <span>{key}</span>
-                      <strong>{statusCounts[key]}</strong>
-                      {active && <em className="pill-order">{idx + 1}</em>}
-                    </button>
-                  );
-                })}
-
-                <div className="summary-pill">
-                  Total: <strong>{statusCounts.Total}</strong>
-                </div>
-              </div>
+              <ApplicationSummary
+                statusCounts={statusCounts}
+                statusSort={statusSort}
+                setStatusSort={setStatusSort}
+              />
             )}
 
             <DeleteConfirmModal
