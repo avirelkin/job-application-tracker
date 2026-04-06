@@ -10,11 +10,13 @@ import ApplicationForm from './components/ApplicationForm';
 import ApplicationFilters from './components/ApplicationFilters';
 import ApplicationSummary from './components/ApplicationSummary';
 import AuthScreen from './components/AuthScreen';
+
 import {
   toDateInputValue,
   getStatusCounts,
   sortApplications,
 } from './utils/applicationHelpers';
+
 import {
   fetchApplications,
   createApplication,
@@ -24,18 +26,11 @@ import {
 
 import { fetchCurrentUser, loginOrRegister, logoutUser } from './utils/authApi';
 
+import { INITIAL_FORM } from './constants/applicationConstants';
+
 const API_BASE = import.meta.env.PROD
   ? window.location.origin
   : 'http://localhost:3000';
-
-const initialForm = {
-  company: '',
-  title: '',
-  url: '',
-  status: 'Applied',
-  applied_date: '',
-  notes: '',
-};
 
 export default function App() {
   const [applications, setApplications] = useState([]);
@@ -44,7 +39,7 @@ export default function App() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
-  const [form, setForm] = useState(initialForm);
+  const [form, setForm] = useState(INITIAL_FORM);
   const [saving, setSaving] = useState(false);
   const [editingId, setEditingId] = useState(null);
 
@@ -110,7 +105,7 @@ export default function App() {
 
   function cancelEdit() {
     setEditingId(null);
-    setForm(initialForm);
+    setForm(INITIAL_FORM);
   }
 
   function cancelDelete() {
@@ -187,7 +182,7 @@ export default function App() {
       setUser(null);
       setApplications([]);
       setEditingId(null);
-      setForm(initialForm);
+      setForm(INITIAL_FORM);
       showToast('info', 'Logged out');
     }
   }

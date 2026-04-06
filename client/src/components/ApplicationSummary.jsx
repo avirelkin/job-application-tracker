@@ -1,10 +1,4 @@
-const SUMMARY_ITEMS = [
-  { key: 'Saved', icon: '💾', cls: 'badge-saved' },
-  { key: 'Applied', icon: '📨', cls: 'badge-applied' },
-  { key: 'Interview', icon: '📅', cls: 'badge-interview' },
-  { key: 'Offer', icon: '🎉', cls: 'badge-offer' },
-  { key: 'Rejected', icon: '⛔', cls: 'badge-rejected' },
-];
+import { SUMMARY_ITEMS } from '../constants/applicationConstants';
 
 export default function ApplicationSummary({
   statusCounts,

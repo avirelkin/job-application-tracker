@@ -1,3 +1,5 @@
+import { APPLICATION_STATUSES } from '../constants/applicationConstants';
+
 export default function ApplicationForm({
   form,
   updateField,
@@ -58,11 +60,9 @@ export default function ApplicationForm({
             onChange={updateField}
             required
           >
-            <option>Saved</option>
-            <option>Applied</option>
-            <option>Interview</option>
-            <option>Offer</option>
-            <option>Rejected</option>
+            {APPLICATION_STATUSES.map((status) => (
+              <option key={status}>{status}</option>
+            ))}
           </select>
         </label>
 

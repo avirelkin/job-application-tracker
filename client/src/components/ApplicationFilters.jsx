@@ -1,3 +1,5 @@
+import { APPLICATION_STATUSES } from '../constants/applicationConstants';
+
 export default function ApplicationFilters({
   filterStatus,
   setFilterStatus,
@@ -25,11 +27,11 @@ export default function ApplicationFilters({
         onChange={(e) => setFilterStatus(e.target.value)}
       >
         <option value="">All Statuses</option>
-        <option value="Saved">Saved</option>
-        <option value="Applied">Applied</option>
-        <option value="Interview">Interview</option>
-        <option value="Offer">Offer</option>
-        <option value="Rejected">Rejected</option>
+        {APPLICATION_STATUSES.map((status) => (
+          <option key={status} value={status}>
+            {status}
+          </option>
+        ))}
       </select>
 
       <input
