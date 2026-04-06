@@ -15,6 +15,14 @@ import {
   getStatusCounts,
   sortApplications,
 } from './utils/applicationHelpers';
+import {
+  fetchApplications,
+  createApplication,
+  updateApplication,
+  deleteApplication,
+} from './utils/applicationApi';
+
+import { fetchCurrentUser, loginOrRegister, logoutUser } from './utils/authApi';
 
 const API_BASE = import.meta.env.PROD
   ? window.location.origin
@@ -118,9 +126,7 @@ export default function App() {
     setError('');
 
     try {
-      const res = await fetch(listUrl, { credentials: 'include' });
-      if (!res.ok) throw new Error(`Failed to fetch: ${res.status}`);
-      const data = await res.json();
+      const data = await fetchApplications(listUrl);
       setApplications(data);
     } catch (err) {
       const msg = err.message || 'Failed to load';
@@ -139,23 +145,10 @@ export default function App() {
     try {
       const isEditing = editingId !== null;
 
-      const endpoint = isEditing
-        ? `${API_BASE}/api/applications/${editingId}`
-        : `${API_BASE}/api/applications`;
-
-      const method = isEditing ? 'PUT' : 'POST';
-
-      const res = await fetch(endpoint, {
-        method,
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(form),
-      });
-
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        throw new Error(data?.error || `${method} failed: ${res.status}`);
+      if (isEditing) {
+        await updateApplication(API_BASE, editingId, form);
+      } else {
+        await createApplication(API_BASE, form);
       }
 
       cancelEdit();
@@ -177,35 +170,19 @@ export default function App() {
     if (!deleteTarget) return;
 
     try {
-      const res = await fetch(
-        `${API_BASE}/api/applications/${deleteTarget.id}`,
-        {
-          method: 'DELETE',
-          credentials: 'include',
-        },
-      );
-
-      if (!res.ok) {
-        throw new Error(`Delete failed: ${res.status}`);
-      }
+      await deleteApplication(API_BASE, deleteTarget.id);
 
       setDeleteTarget(null);
       await loadApplications({ silent: true });
-
-      // if you added toasts earlier:
       showToast('success', 'Application deleted');
     } catch (err) {
       setError(err.message || 'Delete failed');
       showToast('error', err.message || 'Delete failed');
     }
   }
-
   async function logout() {
     try {
-      await fetch(`${API_BASE}/api/auth/logout`, {
-        method: 'POST',
-        credentials: 'include',
-      });
+      await logoutUser(API_BASE);
     } finally {
       setUser(null);
       setApplications([]);
@@ -220,23 +197,12 @@ export default function App() {
     setError('');
 
     try {
-      const endpoint =
-        authMode === 'register'
-          ? `${API_BASE}/api/auth/register`
-          : `${API_BASE}/api/auth/login`;
-
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        credentials: 'include',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: authEmail, password: authPassword }),
-      });
-
-      const data = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        throw new Error(data?.error || `${authMode} failed: ${res.status}`);
-      }
+      const data = await loginOrRegister(
+        API_BASE,
+        authMode,
+        authEmail,
+        authPassword,
+      );
 
       setUser(data.user);
       setFilterStatus('');
@@ -250,7 +216,6 @@ export default function App() {
         authMode === 'register' ? 'Account created' : 'Logged in',
       );
 
-      // load this user's data
       await loadApplications({ silent: true });
     } catch (err) {
       const msg = err.message || 'Auth failed';
@@ -300,11 +265,8 @@ export default function App() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await fetch(`${API_BASE}/api/auth/me`, {
-          credentials: 'include',
-        });
-        const data = await res.json();
-        setUser(data.user);
+        const user = await fetchCurrentUser(API_BASE);
+        setUser(user);
       } catch {
         setUser(null);
       } finally {
