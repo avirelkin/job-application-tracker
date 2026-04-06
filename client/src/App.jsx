@@ -10,6 +10,7 @@ import ApplicationForm from './components/ApplicationForm';
 import ApplicationFilters from './components/ApplicationFilters';
 import ApplicationSummary from './components/ApplicationSummary';
 import AuthScreen from './components/AuthScreen';
+import useToast from './hooks/useToast';
 
 import {
   toDateInputValue,
@@ -52,8 +53,7 @@ export default function App() {
   const [deleteTarget, setDeleteTarget] = useState(null);
   // null or { id, company, title }
 
-  const [toast, setToast] = useState(null); // { type: 'success'|'error'|'info', message: string }
-  const [toastVisible, setToastVisible] = useState(false);
+  const { toast, toastVisible, showToast, closeToast } = useToast();
 
   const [user, setUser] = useState(null); // {id,email} or null
   const [authLoading, setAuthLoading] = useState(true);
@@ -68,21 +68,6 @@ export default function App() {
 
   function closeDetails() {
     setSelectedApp(null);
-  }
-
-  function showToast(type, message) {
-    setToast({ type, message });
-    setToastVisible(true);
-
-    // auto-hide after 2.8s
-    window.clearTimeout(showToast._t);
-    showToast._t = window.setTimeout(() => {
-      setToastVisible(false);
-    }, 2800);
-  }
-
-  function closeToast() {
-    setToastVisible(false);
   }
 
   function updateField(e) {
