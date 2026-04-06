@@ -10,6 +10,11 @@ import ApplicationForm from './components/ApplicationForm';
 import ApplicationFilters from './components/ApplicationFilters';
 import ApplicationSummary from './components/ApplicationSummary';
 import AuthScreen from './components/AuthScreen';
+import {
+  toDateInputValue,
+  getStatusCounts,
+  sortApplications,
+} from './utils/applicationHelpers';
 
 const API_BASE = import.meta.env.PROD
   ? window.location.origin
@@ -24,14 +29,8 @@ const initialForm = {
   notes: '',
 };
 
-function toDateInputValue(applied_date) {
-  if (!applied_date) return '';
-  return String(applied_date).slice(0, 10);
-}
-
 export default function App() {
   const [applications, setApplications] = useState([]);
-  //const [allApplications, setAllApplications] = useState([]); // ✅ add this
   const [selectedApp, setSelectedApp] = useState(null);
 
   const [loading, setLoading] = useState(true);
@@ -59,8 +58,6 @@ export default function App() {
   const [authEmail, setAuthEmail] = useState('');
   const [authPassword, setAuthPassword] = useState('');
   const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
-  //const isFiltered = Boolean(filterStatus) || Boolean(search.trim());
-  // const sourceForCounts = isFiltered ? applications : allApplications;
 
   function openDetails(app) {
     setSelectedApp(app);
@@ -273,45 +270,15 @@ export default function App() {
     return u.toString();
   }, [filterStatus, search, sort, sortBy]);
 
-  const statusCounts = useMemo(() => {
-    const counts = {
-      Saved: 0,
-      Applied: 0,
-      Interview: 0,
-      Offer: 0,
-      Rejected: 0,
-      Total: 0,
-    };
+  const statusCounts = useMemo(
+    () => getStatusCounts(applications),
+    [applications],
+  );
 
-    for (const app of applications) {
-      counts.Total += 1;
-      if (counts[app.status] !== undefined) counts[app.status] += 1;
-    }
-
-    return counts;
-  }, [applications]);
-
-  const sortedApplications = useMemo(() => {
-    const arr = [...applications];
-
-    const cmp = (a, b) => (a < b ? -1 : a > b ? 1 : 0);
-
-    return arr.sort((a, b) => {
-      // 1) compound status priority (pills)
-      for (const s of statusSort) {
-        const aKey = a.status === s ? 0 : 1; // matching status floats up
-        const bKey = b.status === s ? 0 : 1;
-        if (aKey !== bKey) return aKey - bKey;
-      }
-
-      // 2) tie-breaker: existing sortBy/sort
-      const av = a?.[sortBy] ?? '';
-      const bv = b?.[sortBy] ?? '';
-      const base = cmp(av, bv);
-
-      return sort === 'asc' ? base : -base;
-    });
-  }, [applications, statusSort, sortBy, sort]);
+  const sortedApplications = useMemo(
+    () => sortApplications(applications, statusSort, sortBy, sort),
+    [applications, statusSort, sortBy, sort],
+  );
 
   useEffect(() => {
     function onKeyDown(e) {
@@ -346,12 +313,6 @@ export default function App() {
     })();
   }, []);
 
-  /*
-  function clearFilters() {
-    setFilterStatus('');
-    setSearch('');
-  } 
-*/
   return (
     <div className="page">
       <div className="container">
