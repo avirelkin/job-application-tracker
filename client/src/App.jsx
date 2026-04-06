@@ -11,6 +11,7 @@ import ApplicationFilters from './components/ApplicationFilters';
 import ApplicationSummary from './components/ApplicationSummary';
 import AuthScreen from './components/AuthScreen';
 import useToast from './hooks/useToast';
+import useAuth from './hooks/useAuth';
 
 import {
   toDateInputValue,
@@ -24,8 +25,6 @@ import {
   updateApplication,
   deleteApplication,
 } from './utils/applicationApi';
-
-import { fetchCurrentUser, loginOrRegister, logoutUser } from './utils/authApi';
 
 import { INITIAL_FORM } from './constants/applicationConstants';
 
@@ -54,13 +53,22 @@ export default function App() {
   // null or { id, company, title }
 
   const { toast, toastVisible, showToast, closeToast } = useToast();
-
-  const [user, setUser] = useState(null); // {id,email} or null
-  const [authLoading, setAuthLoading] = useState(true);
-
-  const [authEmail, setAuthEmail] = useState('');
-  const [authPassword, setAuthPassword] = useState('');
-  const [authMode, setAuthMode] = useState('login'); // 'login' | 'register'
+  const {
+    user,
+    authLoading,
+    authEmail,
+    setAuthEmail,
+    authPassword,
+    setAuthPassword,
+    authMode,
+    setAuthMode,
+    submitAuth,
+    logout,
+  } = useAuth(API_BASE, showToast, () => {
+    setApplications([]);
+    setEditingId(null);
+    setForm(INITIAL_FORM);
+  });
 
   function openDetails(app) {
     setSelectedApp(app);
@@ -160,49 +168,6 @@ export default function App() {
       showToast('error', err.message || 'Delete failed');
     }
   }
-  async function logout() {
-    try {
-      await logoutUser(API_BASE);
-    } finally {
-      setUser(null);
-      setApplications([]);
-      setEditingId(null);
-      setForm(INITIAL_FORM);
-      showToast('info', 'Logged out');
-    }
-  }
-
-  async function submitAuth(e) {
-    e.preventDefault();
-    setError('');
-
-    try {
-      const data = await loginOrRegister(
-        API_BASE,
-        authMode,
-        authEmail,
-        authPassword,
-      );
-
-      setUser(data.user);
-      setFilterStatus('');
-      setSearch('');
-      setSort('desc');
-      setSortBy('applied_date');
-
-      setAuthPassword('');
-      showToast(
-        'success',
-        authMode === 'register' ? 'Account created' : 'Logged in',
-      );
-
-      await loadApplications({ silent: true });
-    } catch (err) {
-      const msg = err.message || 'Auth failed';
-      setError(msg);
-      showToast('error', msg);
-    }
-  }
 
   const listUrl = useMemo(() => {
     const u = new URL('/api/applications', API_BASE);
@@ -242,19 +207,6 @@ export default function App() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listUrl, authLoading, user /*isFiltered*/]);
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const user = await fetchCurrentUser(API_BASE);
-        setUser(user);
-      } catch {
-        setUser(null);
-      } finally {
-        setAuthLoading(false);
-      }
-    })();
-  }, []);
-
   return (
     <div className="page">
       <div className="container">
@@ -276,7 +228,15 @@ export default function App() {
             setAuthEmail={setAuthEmail}
             authPassword={authPassword}
             setAuthPassword={setAuthPassword}
-            submitAuth={submitAuth}
+            submitAuth={(e) =>
+              submitAuth(e, async () => {
+                setFilterStatus('');
+                setSearch('');
+                setSort('desc');
+                setSortBy('applied_date');
+                await loadApplications({ silent: true });
+              })
+            }
           />
         ) : (
           /* ================= MAIN APP ================= */
