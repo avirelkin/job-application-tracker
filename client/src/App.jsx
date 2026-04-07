@@ -12,12 +12,9 @@ import ApplicationSummary from './components/ApplicationSummary';
 import AuthScreen from './components/AuthScreen';
 import useToast from './hooks/useToast';
 import useAuth from './hooks/useAuth';
+import useApplicationForm from './hooks/useApplicationForm';
 
-import {
-  toDateInputValue,
-  getStatusCounts,
-  sortApplications,
-} from './utils/applicationHelpers';
+import { getStatusCounts, sortApplications } from './utils/applicationHelpers';
 
 import {
   fetchApplications,
@@ -38,10 +35,6 @@ export default function App() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-
-  const [form, setForm] = useState(INITIAL_FORM);
-  const [saving, setSaving] = useState(false);
-  const [editingId, setEditingId] = useState(null);
 
   // filtering + sorting state
   const [filterStatus, setFilterStatus] = useState('');
@@ -66,9 +59,19 @@ export default function App() {
     logout,
   } = useAuth(API_BASE, showToast, () => {
     setApplications([]);
-    setEditingId(null);
-    setForm(INITIAL_FORM);
+    resetFormState();
   });
+
+  const {
+    form,
+    saving,
+    setSaving,
+    editingId,
+    updateField,
+    startEdit,
+    cancelEdit,
+    resetFormState,
+  } = useApplicationForm();
 
   function openDetails(app) {
     setSelectedApp(app);
@@ -76,29 +79,6 @@ export default function App() {
 
   function closeDetails() {
     setSelectedApp(null);
-  }
-
-  function updateField(e) {
-    const { name, value } = e.target;
-    setForm((f) => ({ ...f, [name]: value }));
-  }
-
-  function startEdit(app) {
-    setEditingId(app.id);
-    setForm({
-      company: app.company || '',
-      title: app.title || '',
-      url: app.url || '',
-      status: app.status || 'Applied',
-      applied_date: toDateInputValue(app.applied_date),
-      notes: app.notes || '',
-    });
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }
-
-  function cancelEdit() {
-    setEditingId(null);
-    setForm(INITIAL_FORM);
   }
 
   function cancelDelete() {
