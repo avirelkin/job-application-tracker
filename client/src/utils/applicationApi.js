@@ -10,6 +10,20 @@ export async function fetchApplications(listUrl) {
   return res.json();
 }
 
+export async function fetchApplicationById(API_BASE, id) {
+  const res = await fetch(`${API_BASE}/api/applications/${id}`, {
+    credentials: 'include',
+  });
+
+  const data = await res.json();
+
+  if (!res.ok) {
+    throw new Error(data.error || 'Failed to load application');
+  }
+
+  return data;
+}
+
 export async function createApplication(apiBase, form) {
   const res = await fetch(`${apiBase}/api/applications`, {
     method: 'POST',

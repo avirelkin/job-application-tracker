@@ -47,7 +47,7 @@ export default function ApplicationsTable({
                 <button
                   className="btn"
                   type="button"
-                  onClick={() => onEdit(app)}
+                  onClick={() => onEdit(app.id)}
                 >
                   Edit
                 </button>

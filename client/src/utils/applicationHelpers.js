@@ -45,3 +45,13 @@ export function sortApplications(applications, statusSort, sortBy, sort) {
     return sort === 'asc' ? base : -base;
   });
 }
+export function toApplicationFormValues(app) {
+  return {
+    company: app.company || '',
+    title: app.title || '',
+    url: app.url || '',
+    status: app.status || 'Applied',
+    applied_date: toDateInputValue(app.applied_date),
+    notes: app.notes || '',
+  };
+}

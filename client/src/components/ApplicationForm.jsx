@@ -3,22 +3,22 @@ import { APPLICATION_STATUSES } from '../constants/applicationConstants';
 export default function ApplicationForm({
   form,
   updateField,
-  saveApplication,
+  onSubmit,
   saving,
-  editingId,
-  cancelEdit,
+  heading,
+  submitLabel,
+  onCancel,
+  showCancel = false,
 }) {
   return (
-    <form onSubmit={saveApplication} style={{ marginBottom: 18 }}>
-      <h2 style={{ fontSize: 18 }}>
-        {editingId ? `Edit Application #${editingId}` : 'Add Application'}
-      </h2>
+    <form onSubmit={onSubmit} style={{ marginBottom: 18 }}>
+      {heading && <h2 style={{ fontSize: 18 }}>{heading}</h2>}
 
       <div
         style={{
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
-          gap: 12,
+          gap: 24,
           paddingRight: '20px',
         }}
       >
@@ -89,12 +89,17 @@ export default function ApplicationForm({
       </div>
 
       <div style={{ display: 'flex', gap: 10, marginTop: 12 }}>
-        <button type="submit" disabled={saving}>
-          {saving ? 'Saving…' : editingId ? 'Update' : 'Add'}
+        <button type="submit" disabled={saving} className="btn btn-primary">
+          {saving ? 'Saving…' : submitLabel}
         </button>
 
-        {editingId && (
-          <button type="button" onClick={cancelEdit} disabled={saving}>
+        {showCancel && (
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={saving}
+            className="btn btn-secondary"
+          >
             Cancel
           </button>
         )}
