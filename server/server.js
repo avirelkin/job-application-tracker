@@ -294,6 +294,26 @@ app.delete('/api/applications/:id', requireAuth, async (req, res, next) => {
   }
 });
 
+app.get('/api/applications/:id', requireAuth, async (req, res, next) => {
+  try {
+    const userId = req.session.userId;
+    const { id } = req.params;
+
+    const [rows] = await pool.execute(
+      'SELECT * FROM applications WHERE id = ? AND user_id = ?',
+      [id, userId],
+    );
+
+    if (!rows.length) {
+      return res.status(404).json({ ok: false, error: 'Not found' });
+    }
+
+    res.json(rows[0]);
+  } catch (err) {
+    next(err);
+  }
+});
+
 app.put('/api/applications/:id', requireAuth, async (req, res, next) => {
   try {
     const userId = req.session.userId;

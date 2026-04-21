@@ -2,14 +2,10 @@
 
 export default function ApplicationsTable({
   applications,
-  loading,
   onView,
   onEdit,
   onDelete,
 }) {
-  if (loading) return null;
-  if (applications.length === 0) return null;
-
   return (
     <div className="table-container">
       <table className="apps-table">
@@ -51,7 +47,7 @@ export default function ApplicationsTable({
                 <button
                   className="btn"
                   type="button"
-                  onClick={() => onEdit(app)}
+                  onClick={() => onEdit(app.id)}
                 >
                   Edit
                 </button>
