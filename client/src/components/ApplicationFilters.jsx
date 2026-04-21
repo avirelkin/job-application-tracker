@@ -76,8 +76,6 @@ export default function ApplicationFilters({
           ↻ Refresh
         </button>
       </div>
-
-      {loading && <span>Loading…</span>}
     </div>
   );
 }
