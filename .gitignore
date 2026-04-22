@@ -18,6 +18,6 @@ yarn-error.log*
 # Mac
 .DS_Store
 
-#screenshots
-screenshots/
 
+
+.claude/
