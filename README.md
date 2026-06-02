@@ -21,3 +21,12 @@ A full-stack web app for tracking job applications.
 ---
 
 **Stack:** React, Vite, Node.js, Express, MySQL, bcrypt auth with session cookies
+
+## Try it out
+
+Want to take it for a spin without signing up? Log in with the demo account:
+
+- **Email:** `demo@demo.com`
+- **Password:** `demouser2026`
+
+Feel free to add, edit, and delete job applications — it's a shared demo account, so you may see other visitors' entries too.
